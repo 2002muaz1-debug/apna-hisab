@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اپنا حساب - Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap');
+        
+        body { 
+            font-family: 'Noto Nastaliq Urdu', serif; 
+            background-color: #0f172a; /* Dark Slate/Teal base */
+            color: #f8fafc;
+        }
+        /* رقوم کے لیے ماڈرن فونٹ */
+        .font-num { font-family: 'Outfit', sans-serif; direction: ltr; display: inline-block; }
+        
+        /* Glassmorphism Classes */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.25rem;
+        }
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .hidden { display: none !important; }
+        
+        /* سرکلر پروگریس چارٹ کی اینیمیشن */
+        .progress-ring { transition: background 0.5s ease-out; }
+    </style>
+</head>
+<body class="pb-24">
+
+    <header class="p-5 flex justify-between items-center sticky top-0 z-10 glass-nav">
+        <div>
+            <h1 class="text-2xl font-bold text-yellow-400 tracking-wider">اپنا حساب</h1>
+            <p class="text-xs text-gray-400">پریمیم ایڈیشن</p>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-yellow-400 to-yellow-600 flex justify-center items-center text-slate-900 font-bold shadow-[0_0_15px_rgba(250,204,21,0.4)]">
+            AH
+        </div>
+    </header>
+
+    <div id="screen-dashboard" class="block animate-fade-in">
+        <main class="p-4 max-w-md mx-auto">
+            <div class="glass-card p-6 mb-6 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-32 h-32 bg-yellow-500 rounded-full opacity-10 blur-2xl"></div>
+                
+                <div class="flex justify-between items-center relative z-10">
+                    <div>
+                        <p class="text-gray-300 text-sm mb-2">میرے پاس کل رقم</p>
+                        <h2 class="text-4xl font-bold text-white"><span class="text-yellow-400 text-xl pr-1">Rs</span><span id="myTotalCash" class="font-num">0</span></h2>
+                    </div>
+                    <button onclick="updateCash()" class="bg-white/10 hover:bg-white/20 p-3 rounded-xl transition border border-white/10">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex gap-4 mb-8">
+                <div class="flex-1 glass-card p-4 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 w-2 h-full bg-emerald-400"></div>
+                    <p class="text-gray-400 text-xs mb-2">مارکیٹ سے لینے ہیں</p>
+                    <h3 class="text-2xl font-bold text-emerald-400 font-num" id="totalReceivable">0</h3>
+                </div>
+                <div class="flex-1 glass-card p-4 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 w-2 h-full bg-rose-400"></div>
+                    <p class="text-gray-400 text-xs mb-2">مارکیٹ کو دینے ہیں</p>
+                    <h3 class="text-2xl font-bold text-rose-400 font-num" id="totalPayable">0</h3>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold text-yellow-400 mb-4 border-b border-white/10 pb-2">حالیہ لین دین</h3>
+                <div id="transactionList" class="space-y-3"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="screen-committee" class="hidden">
+        <main class="p-4 max-w-md mx-auto">
+            <div class="glass-card p-5 mb-6 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-gray-400 mb-1">کمیٹی کا مہینہ</p>
+                    <h2 id="bcMonthName" class="text-2xl font-bold text-white">موجودہ مہینہ</h2>
+                    <button onclick="editBcMonth()" class="text-yellow-400 text-xs mt-1 underline">تبدیل کریں</button>
+                </div>
+                
+                <div id="progressRing" class="progress-ring w-20 h-20 rounded-full flex items-center justify-center relative shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+                    <div class="w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center absolute">
+                        <span id="bcPercentage" class="text-white font-bold font-num text-lg">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-4 mb-6 flex justify-between text-center divide-x divide-x-reverse divide-white/10">
+                <div class="flex-1 px-2">
+                    <p class="text-xs text-gray-400">کل ممبران</p>
+                    <p id="bcTotalMembers" class="font-bold font-num text-lg mt-1">0</p>
+                </div>
+                <div class="flex-1 px-2">
+                    <p class="text-xs text-gray-400">وصول شدہ</p>
+                    <p id="bcCollectedAmt" class="font-bold font-num text-emerald-400 text-lg mt-1">0</p>
+                </div>
+                <div class="flex-1 px-2">
+                    <p class="text-xs text-gray-400">بقایا</p>
+                    <p id="bcRemainingAmt" class="font-bold font-num text-rose-400 text-lg mt-1">0</p>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
+                <h3 class="text-lg font-bold text-yellow-400">ممبران کی فہرست</h3>
+                <button onclick="addBcMember()" class="text-slate-900 font-bold bg-yellow-400 px-3 py-1.5 rounded-lg text-sm shadow-lg hover:bg-yellow-300 transition">+ نیا ممبر</button>
+            </div>
+
+            <div id="bcMembersList" class="space-y-3"></div>
+            
+            <button onclick="resetBcMonth()" class="mt-8 w-full glass-card py-3 text-center text-sm text-gray-400 hover:text-white transition">نیا مہینہ شروع کریں (سب کو بقایا کریں)</button>
+        </main>
+    </div>
+
+    <div id="screen-reports" class="hidden">
+        <main class="p-4 max-w-md mx-auto text-center mt-20">
+            <div class="w-20 h-20 mx-auto bg-white/10 rounded-full flex items-center justify-center mb-4">
+                <span class="text-4xl">📊</span>
+            </div>
+            <h2 class="text-2xl font-bold text-yellow-400 mb-2">رپورٹس اور تفاصیل</h2>
+            <p class="text-gray-400">یہاں آپ کے تمام لین دین کی پی ڈی ایف (PDF) رپورٹس اور ماہانہ چارٹس نظر آئیں گے۔</p>
+        </main>
+    </div>
+
+    <div id="screen-settings" class="hidden">
+        <main class="p-4 max-w-md mx-auto mt-10">
+            <h2 class="text-2xl font-bold text-yellow-400 mb-6">اکاؤنٹ سیٹنگز</h2>
+            <div class="space-y-3">
+                <div class="glass-card p-4 flex justify-between items-center">
+                    <span>گوگل ڈرائیو بیک اپ</span>
+                    <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded">جلد آرہا ہے</span>
+                </div>
+                <div class="glass-card p-4 flex justify-between items-center">
+                    <span>خفیہ پن (PIN Lock)</span>
+                    <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded">جلد آرہا ہے</span>
+                </div>
+                <div onclick="clearAllData()" class="glass-card p-4 text-rose-400 flex items-center justify-center cursor-pointer hover:bg-rose-500/10 transition">
+                    سارا ریکارڈ ڈیلیٹ کریں
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="fab-btn" class="fixed bottom-20 left-0 right-0 flex justify-center z-20">
+        <button onclick="openModal()" class="bg-gradient-to-r from-yellow-400 to-yellow-600 text-slate-900 px-8 py-3.5 rounded-full shadow-[0_10px_25px_rgba(250,204,21,0.3)] flex items-center font-bold text-lg hover:scale-105 transition-transform">
+            <span class="text-2xl ml-2 font-light">+</span> نیا لین دین
+        </button>
+    </div>
+
+    <nav class="fixed bottom-0 w-full glass-nav flex justify-around items-center h-16 z-20 pb-1">
+        <button onclick="switchTab('dashboard')" id="tab-dashboard" class="flex-1 flex flex-col items-center text-yellow-400 transition">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+            <span class="text-[10px] mt-1 font-bold">ڈیش بورڈ</span>
+        </button>
+        <button onclick="switchTab('committee')" id="tab-committee" class="flex-1 flex flex-col items-center text-gray-500 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            <span class="text-[10px] mt-1 font-bold">کمیٹی</span>
+        </button>
+        <button onclick="switchTab('reports')" id="tab-reports" class="flex-1 flex flex-col items-center text-gray-500 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span class="text-[10px] mt-1 font-bold">رپورٹس</span>
+        </button>
+        <button onclick="switchTab('settings')" id="tab-settings" class="flex-1 flex flex-col items-center text-gray-500 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span class="text-[10px] mt-1 font-bold">سیٹنگز</span>
+        </button>
+    </nav>
+
+    <div id="transactionModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex justify-center items-center z-30 px-4">
+        <div class="glass-card w-full max-w-sm overflow-hidden border border-white/20">
+            <div class="px-5 py-4 flex justify-between items-center border-b border-white/10">
+                <h2 class="font-bold text-lg text-yellow-400">نیا حساب درج کریں</h2>
+                <button onclick="closeModal()" class="text-2xl text-gray-400 hover:text-white">&times;</button>
+            </div>
+            <div class="p-5">
+                <input type="text" id="personName" placeholder="نام لکھیں..." class="w-full mb-4 p-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 transition">
+                <input type="number" id="amount" placeholder="رقم (Rs)" class="w-full mb-4 p-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 font-num transition" style="direction: ltr; text-align: right;">
+                <input type="date" id="date" class="w-full mb-6 p-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-yellow-400 transition">
+                <div class="flex gap-3">
+                    <button onclick="saveTransaction('لینے ہیں')" class="flex-1 bg-emerald-500/20 border border-emerald-500/50 hover:bg-emerald-500 text-emerald-400 hover:text-slate-900 py-3 rounded-xl font-bold transition">پیسے دیے</button>
+                    <button onclick="saveTransaction('دینے ہیں')" class="flex-1 bg-rose-500/20 border border-rose-500/50 hover:bg-rose-500 text-rose-400 hover:text-slate-900 py-3 rounded-xl font-bold transition">پیسے لیے</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // لوکل ٹائم زون کے مطابق درست تاریخ (بگ فکسڈ)
+        let today = new Date();
+        let yyyy = today.getFullYear();
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        let dd = String(today.getDate()).padStart(2, '0');
+        document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
+
+        let transactions = JSON.parse(localStorage.getItem('hisab_data')) || [];
+        let myCash = JSON.parse(localStorage.getItem('my_cash')) || 0;
+        let bcMembers = JSON.parse(localStorage.getItem('bc_data')) || [];
+        let currentBcMonth = localStorage.getItem('bc_month') || "موجودہ مہینہ";
+
+        // Tabs Logic (بگ فکسڈ)
+        function switchTab(tabName) {
+            ['dashboard', 'committee', 'reports', 'settings'].forEach(tab => {
+                document.getElementById(`screen-${tab}`).classList.add('hidden');
+                document.getElementById(`tab-${tab}`).classList.replace('text-yellow-400', 'text-gray-500');
+            });
+            document.getElementById(`screen-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}`).classList.replace('text-gray-500', 'text-yellow-400');
+
+            // پلس کا بٹن صرف ڈیش بورڈ پر نظر آئے گا
+            if(tabName === 'dashboard') {
+                document.getElementById('fab-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('fab-btn').classList.add('hidden');
+            }
+        }
+
+        // Dashboard
+        function updateCash() {
+            let newVal = prompt("اپنے پاس موجود کل کیش (رقم) درج کریں:", myCash);
+            if(newVal !== null && newVal !== "") {
+                // کومے کو ہٹانے کا بگ فکس
+                let cleanVal = newVal.replace(/,/g, ''); 
+                if(!isNaN(cleanVal)) {
+                    myCash = parseInt(cleanVal);
+                    localStorage.setItem('my_cash', JSON.stringify(myCash));
+                    renderDashboard();
+                }
+            }
+        }
+
+        function formatNum(num) { return Number(num).toLocaleString('en-IN'); }
+
+        function renderDashboard() {
+            document.getElementById('myTotalCash').innerText = formatNum(myCash);
+            let rec = 0, pay = 0;
+            const list = document.getElementById('transactionList');
+            list.innerHTML = '';
+
+            if(transactions.length === 0) {
+                list.innerHTML = '<p class="text-center text-gray-500 py-4">ابھی کوئی لین دین نہیں</p>';
+            }
+
+            transactions.slice().reverse().forEach(t => {
+                if(t.type === 'لینے ہیں') rec += t.amount;
+                if(t.type === 'دینے ہیں') pay += t.amount;
+                let isRec = t.type === 'لینے ہیں';
+                let color = isRec ? 'text-emerald-400' : 'text-rose-400';
+                let icon = isRec ? '↗' : '↙';
+                
+                list.innerHTML += `
+                    <div class="glass-card p-3 flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center ${color} font-bold text-lg">${icon}</div>
+                            <div>
+                                <p class="font-bold text-white">${t.name}</p>
+                                <p class="text-[10px] text-gray-400">${t.date}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <p class="font-bold font-num ${color} pr-2">${formatNum(t.amount)}</p>
+                            <button onclick="editTransaction(${t.id})" class="text-blue-400 hover:bg-blue-500/20 p-1.5 rounded transition" title="ایڈٹ کریں">✏️</button>
+                            <button onclick="deleteTransaction(${t.id})" class="text-rose-400 hover:bg-rose-500/20 p-1.5 rounded transition" title="ڈیلیٹ کریں">🗑️</button>
+                        </div>
+                    </div>`;
+            });
+            document.getElementById('totalReceivable').innerText = formatNum(rec);
+            document.getElementById('totalPayable').innerText = formatNum(pay);
+        }
+
+        function openModal() { document.getElementById('transactionModal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('transactionModal').classList.add('hidden'); }
+
+        function saveTransaction(type) {
+            const name = document.getElementById('personName').value;
+            const amt = document.getElementById('amount').value;
+            if(!name || !amt) return alert("نام اور رقم لازمی ہیں!");
+            transactions.push({ id: Date.now(), name, amount: parseInt(amt), date: document.getElementById('date').value, type });
+            localStorage.setItem('hisab_data', JSON.stringify(transactions));
+            document.getElementById('personName').value = ''; document.getElementById('amount').value = '';
+            closeModal(); renderDashboard();
+        }
+        function deleteTransaction(id) {
+            if(confirm("کیا آپ واقعی یہ لین دین ڈیلیٹ کرنا چاہتے ہیں؟")) {
+                transactions = transactions.filter(t => t.id !== id);
+                localStorage.setItem('hisab_data', JSON.stringify(transactions));
+                renderDashboard();
+            }
+        }
+
+        function editTransaction(id) {
+            let txn = transactions.find(t => t.id === id);
+            if(txn) {
+                let newName = prompt("نیا نام لکھیں:", txn.name);
+                if(newName === null) return;
+                let newAmt = prompt("نئی رقم لکھیں:", txn.amount);
+                if(newAmt === null) return;
+                
+                let cleanAmt = newAmt.replace(/,/g, '');
+                if(!isNaN(cleanAmt) && cleanAmt !== "") {
+                    txn.name = newName;
+                    txn.amount = parseInt(cleanAmt);
+                    localStorage.setItem('hisab_data', JSON.stringify(transactions));
+                    renderDashboard();
+                }
+            }
+        }
+
+        // BC Logic
+        function editBcMonth() {
+            let newMonth = prompt("کمیٹی کے مہینے کا نام لکھیں:", currentBcMonth);
+            if(newMonth && newMonth.trim() !== "") {
+                currentBcMonth = newMonth;
+                localStorage.setItem('bc_month', currentBcMonth);
+                renderBc();
+            }
+        }
+
+        function addBcMember() {
+            let name = prompt("ممبر کا نام لکھیں:");
+            if(!name) return;
+            let amount = prompt("ماہانہ کمیٹی کی رقم:");
+            if(name && amount) {
+                // کومے کو ہٹانے کا بگ فکس
+                let cleanAmount = amount.replace(/,/g, ''); 
+                if(!isNaN(cleanAmount)) {
+                    bcMembers.push({ name, amount: parseInt(cleanAmount), paid: false });
+                    saveBc(); renderBc();
+                }
+            }
+        }
+
+        function payBcAmount(index) {
+            let member = bcMembers[index];
+            // پرانے ڈیٹا کی مطابقت کے لیے
+            let currentPaid = member.paidAmount !== undefined ? member.paidAmount : (member.paid ? member.amount : 0);
+            let remaining = member.amount - currentPaid;
+            
+            if(remaining <= 0) return; // اگر پہلے ہی پورے دے چکا ہے
+            
+            let input = prompt(`'${member.name}' کی کل کمیٹی Rs ${formatNum(member.amount)} ہے۔\nاس وقت کتنی رقم وصول ہوئی؟ (باقی: ${formatNum(remaining)})`, remaining);
+            
+            if (input !== null && input.trim() !== "") {
+                let cleanInput = input.replace(/,/g, '');
+                if (!isNaN(cleanInput)) {
+                    let paidNow = parseInt(cleanInput);
+                    member.paidAmount = currentPaid + paidNow;
+                    
+                    if (member.paidAmount > member.amount) member.paidAmount = member.amount;
+                    saveBc(); renderBc();
+                }
+            }
+        }
+
+        function deleteBcMember(index) {
+            if(confirm(`کیا آپ '${bcMembers[index].name}' کو ڈیلیٹ کرنا چاہتے ہیں؟`)) {
+                bcMembers.splice(index, 1);
+                saveBc(); renderBc();
+            }
+        }
+
+        function saveBc() { localStorage.setItem('bc_data', JSON.stringify(bcMembers)); }
+
+        function renderBc() {
+            document.getElementById('bcMonthName').innerText = currentBcMonth;
+            const list = document.getElementById('bcMembersList');
+            list.innerHTML = '';
+            
+            let totalCollected = 0, totalAmount = 0;
+
+            if(bcMembers.length === 0) {
+                list.innerHTML = '<p class="text-center text-gray-500 py-4">کوئی ممبر شامل نہیں</p>';
+            }
+
+            bcMembers.forEach((m, i) => {
+                let currentPaid = m.paidAmount !== undefined ? m.paidAmount : (m.paid ? m.amount : 0);
+                
+                totalAmount += m.amount;
+                totalCollected += currentPaid;
+
+                let isFullyPaid = currentPaid >= m.amount;
+                let isPartiallyPaid = currentPaid > 0 && currentPaid < m.amount;
+                
+                let bgClass = isFullyPaid ? 'bg-emerald-500/10 border-emerald-500/30' : (isPartiallyPaid ? 'bg-yellow-500/10 border-yellow-500/30' : 'bg-white/5 border-white/10');
+                let btnColor = isFullyPaid ? 'bg-emerald-500 text-slate-900' : (isPartiallyPaid ? 'bg-yellow-500 text-slate-900' : 'bg-white/10 text-white hover:bg-white/20');
+                
+                let btnText = isFullyPaid ? '✔ مکمل وصول' : (isPartiallyPaid ? `جمع: ${formatNum(currentPaid)} (باقی: ${formatNum(m.amount - currentPaid)})` : 'بقایا (درج کریں)');
+
+                list.innerHTML += `
+                    <div class="glass-card p-3 border flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-3 transition-all ${bgClass}">
+                        <div>
+                            <p class="font-bold text-white text-lg">${m.name}</p>
+                            <p class="text-xs text-gray-400 font-num">کل: Rs ${formatNum(m.amount)}</p>
+                        </div>
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <button onclick="payBcAmount(${i})" class="flex-1 sm:flex-none px-3 py-1.5 rounded-lg font-bold text-[11px] sm:text-sm transition ${btnColor}" ${isFullyPaid ? 'disabled' : ''}>
+                                ${btnText}
+                            </button>
+                            <button onclick="deleteBcMember(${i})" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white transition">
+                                ✕
+                            </button>
+                        </div>
+                    </div>`;
+            });
+            
+            let totalRemaining = totalAmount - totalCollected;
+            let percentage = totalAmount > 0 ? Math.round((totalCollected / totalAmount) * 100) : 0;
+            
+            document.getElementById('progressRing').style.background = `conic-gradient(#10b981 ${percentage}%, rgba(255,255,255,0.05) 0)`;
+            document.getElementById('bcPercentage').innerText = percentage + '%';
+
+            document.getElementById('bcTotalMembers').innerText = bcMembers.length;
+            document.getElementById('bcCollectedAmt').innerText = formatNum(totalCollected);
+            document.getElementById('bcRemainingAmt').innerText = formatNum(totalRemaining);
+        }
+
+        function resetBcMonth() {
+            if(confirm("نئے مہینے کے لیے سب کو بقایا کر دیا جائے گا، کیا آپ مطمئن ہیں؟")) {
+                bcMembers.forEach(m => m.paid = false);
+                saveBc(); renderBc();
+            }
+        }
+
+        // سارا ڈیٹا ڈیلیٹ کرنے کا نیا فنکشن (بگ فکسڈ)
+        function clearAllData() {
+            if(confirm('کیا آپ واقعی سارا حساب اور کمیٹی کا ریکارڈ ڈیلیٹ کرنا چاہتے ہیں؟ یہ عمل واپس نہیں ہو سکتا۔')) {
+                localStorage.clear();
+                transactions = [];
+                myCash = 0;
+                bcMembers = [];
+                renderDashboard();
+                renderBc();
+                alert('سارا ریکارڈ کامیابی سے ڈیلیٹ کر دیا گیا ہے۔');
+            }
+        }
+
+        renderDashboard(); renderBc();
+    </script>
+</body>
+</html>
